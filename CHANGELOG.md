@@ -5,6 +5,8 @@ project adheres to [Semantic Versioning](http://semver.org).
 
 ## Unreleased
 
+## 0.3.0 - 2018-04-09
+
 ### Added
 
   - Public folder with main template, favicon and database.

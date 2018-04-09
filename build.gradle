@@ -1,0 +1,84 @@
+defaultTasks "wrapper", "watch", "dependencies", "install", "test", "build"
+
+def aptPackages = ["nodejs", "nodejs-legacy", "npm"]
+def path = System.getProperty("user.dir")
+def srcDir = "${path}/src"
+def testDir = "${path}/test"
+
+task wrapper(type: Wrapper) {
+  description "Creates the project wrapper."
+  gradleVersion = "3.4.1"
+}
+
+task watch(type: Exec) {
+  description "Watches for changes."
+  inputs.files(srcDir, testDir)
+  commandLine "true"
+
+  new ByteArrayOutputStream()
+}
+
+task dependencies() {
+  description "Installs all dependencies."
+
+  dependsOn {
+    tasks.findAll { task ->
+      task.name.startsWith("dependencies") && !task.name.equals("dependencies")
+    }
+  }
+}
+
+task aptUpdate(type: Exec) {
+  description "Updates APT repository information."
+  workingDir path
+  commandLine "apt-get"
+  args "update"
+
+  new ByteArrayOutputStream()
+}
+
+task dependenciesApt(type: Exec, dependsOn: aptUpdate) {
+  description "Installs APT dependencies."
+  workingDir path
+  commandLine "apt-get"
+  args = ["install", "-y"] + aptPackages
+
+  new ByteArrayOutputStream()
+}
+
+task install(type: Exec) {
+  description "Installs this module."
+  workingDir path
+  commandLine "npm"
+  args = ["install"]
+
+  new ByteArrayOutputStream()
+}
+
+task build(type: Exec) {
+  description "Builds this module."
+  workingDir path
+  commandLine "npm"
+  args = ["build"]
+
+  new ByteArrayOutputStream()
+}
+
+task test() {
+  description "Runs all test cases."
+
+  dependsOn {
+    tasks.findAll { task ->
+      task.name.startsWith("test") && !task.name.equals("test")
+    }
+  }
+}
+
+task testJest(type: Exec) {
+  description "Runs Jest test cases."
+  workingDir path
+  commandLine "npm"
+  args = ["test"]
+
+  new ByteArrayOutputStream()
+}
